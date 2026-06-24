@@ -164,21 +164,6 @@ annotate service.Items with @(
             Label : 'ItemsGroupCode',
             Value : ItemsGroupCode,
         },
-        {
-            $Type : 'UI.DataField',
-            Value : Currency,
-            Label : 'Currency',
-        },
-        {
-            $Type : 'UI.DataField',
-            Value : Price,
-            Label : 'Price',
-        },
-        {
-            $Type : 'UI.DataField',
-            Value : PriceList,
-            Label : 'PriceList',
-        },
     ],
 );
 

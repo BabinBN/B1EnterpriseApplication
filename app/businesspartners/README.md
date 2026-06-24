@@ -1,13 +1,13 @@
 ## Application Details
 |               |
 | ------------- |
-|**Generation Date and Time**<br>Wed Jun 24 2026 06:26:13 GMT+0000 (Coordinated Universal Time)|
+|**Generation Date and Time**<br>Wed Jun 24 2026 11:22:28 GMT+0000 (Coordinated Universal Time)|
 |**App Generator**<br>SAP Fiori Application Generator|
 |**App Generator Version**<br>1.27.0|
 |**Generation Platform**<br>SAP Business Application Studio|
 |**Template Used**<br>List Report Page V4|
 |**Service Type**<br>Local CAP|
-|**Service URL**<br>http://localhost:4004/odata/v4/service/B1EnterpriceApplicationService/|
+|**Service URL**<br>http://localhost:4004/odata/v4/service/Business_Partner/|
 |**Module Name**<br>businesspartners|
 |**Application Title**<br>App Title|
 |**Namespace**<br>|

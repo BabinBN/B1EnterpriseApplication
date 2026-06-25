@@ -1,0 +1,2 @@
+sap.ui.define(["sap/ui/test/opaQunit","./pages/JourneyRunner"],function(e,t){"use strict";function i(){QUnit.module("ItemsListListReport journey");e("Start application",function(e,t,i){e.iStartMyApp();i.onTheItemsList.iSeeThisPage()});e("Navigate to ObjectPage",function(e,t,i){t.onTheItemsList.onFilterBar().iExecuteSearch();i.onTheItemsList.onTable().iCheckRows();t.onTheItemsList.onTable().iPressRow(0);i.onTheItemsObjectPage.iSeeThisPage()});e("Teardown",function(e,t,i){e.iTearDownMyApp()})}t.run([i])});
+//# sourceMappingURL=ItemsListJourney.js.map

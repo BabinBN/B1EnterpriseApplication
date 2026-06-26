@@ -2,7 +2,7 @@
 	"_version": "1.85.0",
 	"sap.cloud": {
 		"public": true,
-		"service": "itemmaster"
+		"service": "B1EnterpriceApplication"
 	},
 	"sap.app": {
 		"id": "itemmaster",

@@ -125,6 +125,8 @@ resources:
 
   - name: B1EnterpriceApplication-destination
     type: org.cloudfoundry.managed-service
+    requires:
+      - name: B1EnterpriceApplication-html5-repo-host
     parameters:
       service: destination
       service-plan: lite
@@ -144,6 +146,13 @@ resources:
                 ProxyType: Internet
                 Authentication: BasicAuthentication
                 URL: https://htpc19835d03.cloudiax.com:50000/b1s/v2
+
+              - Name: B1EnterpriceApplication-html5-repo-host
+                ServiceInstanceName: B1EnterpriceApplication-html5-repo-host
+                ServiceKeyName: B1EnterpriceApplication-html5-repo-host-key
+                URL: https://ondemand.com
+                Verbose: true
+                html5-apps-repo.runtime-definitions: true
 
             existing_destinations_policy: update
         version: 1.0.0

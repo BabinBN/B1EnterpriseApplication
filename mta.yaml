@@ -1,176 +1,177 @@
-_schema-version: "3.3.0"
+_schema-version: 3.3.0
 ID: B1EnterpriceApplication
 description: CAP Java + Fiori Apps
 version: 1.0.0
-
+modules:
+- name: B1EnterpriceApplication-srv
+  type: java
+  path: srv
+  properties:
+    JBP_CONFIG_SAP_MACHINE_JRE: '{ version: 21.+ }'
+    SPRING_PROFILES_ACTIVE: cloud
+  requires:
+  - name: B1EnterpriceApplication-auth
+  - name: B1EnterpriceApplication-db
+  - name: B1EnterpriceApplication-connectivity
+  - name: B1EnterpriceApplication-destination
+  provides:
+  - name: srv-api
+    properties:
+      srv-url: ${default-url}
+  parameters:
+    buildpack: sap_java_buildpack_jakarta
+    instances: 1
+  build-parameters:
+    build-result: target/*-exec.jar
+    builder: custom
+    commands:
+    - mvn clean package -DskipTests=true
+- name: B1EnterpriceApplication-db-deployer
+  type: hdb
+  path: db
+  requires:
+  - name: B1EnterpriceApplication-db
+  parameters:
+    buildpack: nodejs_buildpack
+- name: B1EnterpriceApplication-app-content
+  type: com.sap.application.content
+  path: resources
+  requires:
+  - name: B1EnterpriceApplication-html5-repo-host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: .
+    requires:
+    - artifacts:
+      - businesspartners.zip
+      name: businesspartners
+      target-path: businesspartners/
+    - artifacts:
+      - itemmaster.zip
+      name: itemmaster
+      target-path: itemmaster/
+    - artifacts:
+      - purchaseorder.zip
+      name: purchaseorder
+      target-path: purchaseorder/
+    - artifacts:
+      - purchaseorderanalytics.zip
+      name: purchaseorderanalytics
+      target-path: ./
+- name: businesspartners
+  type: html5
+  path: app/businesspartners
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+- name: itemmaster
+  type: html5
+  path: app/item_master
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+- name: purchaseorder
+  type: html5
+  path: app/purchase_order
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+- name: purchaseorderanalytics
+  type: html5
+  path: app/purchaseorder_analytics
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+resources:
+- name: B1EnterpriceApplication-auth
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      tenant-mode: dedicated
+      xsappname: B1EnterpriceApplication-${org}-${space}
+    path: xs-security.json
+    service: xsuaa
+    service-plan: application
+- name: B1EnterpriceApplication-db
+  type: com.sap.xs.hdi-container
+  parameters:
+    service: hana
+    service-plan: hdi-shared
+- name: B1EnterpriceApplication-connectivity
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: connectivity
+    service-plan: lite
+- name: B1EnterpriceApplication-destination
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: false
+      init_data:
+        instance:
+          destinations:
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+          - Authentication: BasicAuthentication
+            Name: SAPB1
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://htpc19835d03.cloudiax.com:50000/b1s/v2
+          - Name: B1EnterpriceApplication-html5-repo-host
+            ServiceInstanceName: B1EnterpriceApplication-html5-repo-host
+            ServiceKeyName: B1EnterpriceApplication-html5-repo-host-key
+            URL: https://html5-apps-repo-rt.cfapps.us10-001.hana.ondemand.com
+            Verbose: true
+            html5-apps-repo.runtime-definitions: true
+          - Authentication: NoAuthentication
+            HTML5.DynamicDestination: true
+            HTML5.ForwardAuthToken: true
+            Name: srv-api
+            ProxyType: Internet
+            Type: HTTP
+            URL: ~{srv-api/srv-url}
+          existing_destinations_policy: update
+      version: 1.0.0
+    service: destination
+    service-plan: lite
+  requires:
+  - name: B1EnterpriceApplication-html5-repo-host
+  - name: srv-api
+- name: B1EnterpriceApplication-html5-repo-host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-plan: app-host
+- name: B1EnterpriceApplication-html5-repo-runtime
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-plan: app-runtime
 parameters:
   deploy_mode: html5-repo
   enable-parallel-deployments: true
-
-modules:
-
-  - name: B1EnterpriceApplication-srv
-    type: java
-    path: srv
-    parameters:
-      buildpack: sap_java_buildpack_jakarta
-      instances: 1
-    properties:
-      SPRING_PROFILES_ACTIVE: cloud
-      JBP_CONFIG_SAP_MACHINE_JRE: "{ version: 21.+ }"
-    requires:
-      - name: B1EnterpriceApplication-auth
-      - name: B1EnterpriceApplication-db
-      - name: B1EnterpriceApplication-connectivity
-      - name: B1EnterpriceApplication-destination
-    provides:
-      - name: srv-api
-        properties:
-          srv-url: ${default-url}
-    build-parameters:
-      builder: custom
-      commands:
-        - mvn clean package -DskipTests=true
-      build-result: target/*-exec.jar
-
-  - name: B1EnterpriceApplication-db-deployer
-    type: hdb
-    path: db
-    requires:
-      - name: B1EnterpriceApplication-db
-    parameters:
-      buildpack: nodejs_buildpack
-
-  - name: B1EnterpriceApplication-app-content
-    type: com.sap.application.content
-    path: .
-    requires:
-      - name: B1EnterpriceApplication-html5-repo-host
-        parameters:
-          content-target: true
-    build-parameters:
-      build-result: resources
-      requires:
-        - name: businesspartners
-          artifacts:
-            - businesspartners.zip
-          target-path: resources/
-
-        - name: itemmaster
-          artifacts:
-            - itemmaster.zip
-          target-path: resources/
-
-        - name: purchaseorder
-          artifacts:
-            - purchaseorder.zip
-          target-path: resources/
-
-  - name: businesspartners
-    type: html5
-    path: app/businesspartners
-    build-parameters:
-      builder: custom
-      commands:
-        - npm install
-        - npm run build:cf
-      build-result: dist
-      supported-platforms: []
-
-  - name: itemmaster
-    type: html5
-    path: app/item_master
-    build-parameters:
-      builder: custom
-      commands:
-        - npm install
-        - npm run build:cf
-      build-result: dist
-      supported-platforms: []
-
-  - name: purchaseorder
-    type: html5
-    path: app/purchase_order
-    build-parameters:
-      builder: custom
-      commands:
-        - npm install
-        - npm run build:cf
-      build-result: dist
-      supported-platforms: []
-
-resources:
-
-  - name: B1EnterpriceApplication-auth
-    type: org.cloudfoundry.managed-service
-    parameters:
-      service: xsuaa
-      service-plan: application
-      path: xs-security.json
-      config:
-        xsappname: B1EnterpriceApplication-${org}-${space}
-        tenant-mode: dedicated
-
-  - name: B1EnterpriceApplication-db
-    type: com.sap.xs.hdi-container
-    parameters:
-      service: hana
-      service-plan: hdi-shared
-
-  - name: B1EnterpriceApplication-connectivity
-    type: org.cloudfoundry.managed-service
-    parameters:
-      service: connectivity
-      service-plan: lite
-
-  - name: B1EnterpriceApplication-destination
-    type: org.cloudfoundry.managed-service
-    requires:
-      - name: B1EnterpriceApplication-html5-repo-host
-    parameters:
-      service: destination
-      service-plan: lite
-      config:
-        HTML5Runtime_enabled: true
-        init_data:
-          instance:
-            destinations:
-              - Name: ui5
-                Type: HTTP
-                ProxyType: Internet
-                Authentication: NoAuthentication
-                URL: https://ui5.sap.com
-
-              - Name: SAPB1
-                Type: HTTP
-                ProxyType: Internet
-                Authentication: BasicAuthentication
-                URL: https://htpc19835d03.cloudiax.com:50000/b1s/v2
-
-              - Name: B1EnterpriceApplication-html5-repo-host
-                ServiceInstanceName: B1EnterpriceApplication-html5-repo-host
-                ServiceKeyName: B1EnterpriceApplication-html5-repo-host-key
-                URL: https://ondemand.com
-                Verbose: true
-                html5-apps-repo.runtime-definitions: true
-
-            existing_destinations_policy: update
-        version: 1.0.0
-
-  - name: B1EnterpriceApplication-html5-repo-host
-    type: org.cloudfoundry.managed-service
-    parameters:
-      service: html5-apps-repo
-      service-plan: app-host
-
-  - name: B1EnterpriceApplication-html5-repo-runtime
-    type: org.cloudfoundry.managed-service
-    parameters:
-      service: html5-apps-repo
-      service-plan: app-runtime
-
 build-parameters:
   before-all:
-    - builder: custom
-      commands:
-        - npm ci
+  - builder: custom
+    commands:
+    - npm ci

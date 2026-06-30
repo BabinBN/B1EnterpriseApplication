@@ -7,13 +7,22 @@ modules:
   type: java
   path: srv
   properties:
+    JBP_CONFIG_JAVA_OPTS:
+      from_environment: false
+      java_opts: |
+        -javaagent:META-INF/.sap_java_buildpack/otel_agent/opentelemetry-javaagent.jar -Dotel.javaagent.extensions=META-INF/.sap_java_buildpack/otel_agent_extension/otel-agent-ext-java.jar
     JBP_CONFIG_SAP_MACHINE_JRE: '{ version: 21.+ }'
+    OTEL_LOGS_EXPORTER: none
+    OTEL_METRICS_EXPORTER: cloud-logging
+    OTEL_TRACES_EXPORTER: cloud-logging
     SPRING_PROFILES_ACTIVE: cloud
   requires:
   - name: B1EnterpriceApplication-auth
   - name: B1EnterpriceApplication-db
   - name: B1EnterpriceApplication-connectivity
   - name: B1EnterpriceApplication-destination
+  - name: B1EnterpriceApplication-auditlog
+  - name: B1EnterpriceApplication-cloud-logging
   provides:
   - name: srv-api
     properties:
@@ -59,6 +68,10 @@ modules:
       - purchaseorderanalytics.zip
       name: purchaseorderanalytics
       target-path: ./
+    - artifacts:
+      - itemoverview.zip
+      name: itemoverview
+      target-path: ./
 - name: businesspartners
   type: html5
   path: app/businesspartners
@@ -92,6 +105,16 @@ modules:
 - name: purchaseorderanalytics
   type: html5
   path: app/purchaseorder_analytics
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+- name: itemoverview
+  type: html5
+  path: app/item_overview
   build-parameters:
     build-result: dist
     builder: custom
@@ -167,6 +190,19 @@ resources:
   parameters:
     service: html5-apps-repo
     service-plan: app-runtime
+- name: B1EnterpriceApplication-auditlog
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: auditlog
+    service-plan: premium
+- name: B1EnterpriceApplication-cloud-logging
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      ingest_otlp:
+        enabled: true
+    service: cloud-logging
+    service-plan: standard
 parameters:
   deploy_mode: html5-repo
   enable-parallel-deployments: true

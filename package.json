@@ -14,7 +14,9 @@
     "app/businesspartners",
     "app/item_master",
     "app/purchase_order",
-    "app/purchaseorder_analytics"
+    "app/purchaseorder_analytics",
+    "app/item_overview",
+    "app/item_overview"
   ],
   "scripts": {
     "undeploy": "cf undeploy B1EnterpriceApplication --delete-services --delete-service-keys --delete-service-brokers",

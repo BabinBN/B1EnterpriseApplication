@@ -90,19 +90,19 @@ annotate PurchaseAnalyticsService.PurchaseOrdersAnalytics with @(
    ======================================================================== */
 annotate PurchaseAnalyticsService.PurchaseOrdersAnalytics with @(
     UI: {
-        SelectionFields : [ CardCode, DocumentStatus ],
+        SelectionFields : [ CardCode, DocStatus ],
         LineItem: [
             { $Type : 'UI.DataField', Value : DocEntry },
             { $Type : 'UI.DataField', Value : DocNum },
             { $Type : 'UI.DataField', Value : CardCode },
             { $Type : 'UI.DataField', Value : CardName },
             { $Type : 'UI.DataField', Value : DocTotal },
-            { $Type : 'UI.DataField', Value : DocumentStatus }
+            { $Type : 'UI.DataField', Value : DocStatus }
         ]
     }
 );
 
 annotate PurchaseAnalyticsService.PurchaseOrdersAnalytics with {
   CardName       @Analytics.Dimension: true;
-  DocumentStatus @Analytics.Dimension: true;
+ DocStatus       @Analytics.Dimension: true;
 };

@@ -6,6 +6,8 @@
     },
     "connectivity": true,
     "destinations": true,
-    "html5-repo": true
+    "html5-repo": true,
+    "audit-log": true,
+    "telemetry": "to-cloud-logging"
   }
 }
